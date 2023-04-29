@@ -1,0 +1,151 @@
+import bcrypt from 'bcryptjs';
+import { Request, Response } from 'express';
+import jwt from "jsonwebtoken";
+import { prisma } from "../index";
+import { generateUserAlternalName } from '../utilities/StringUtil';
+const jwtSecret = 'cf0d574bd8764c2b758d3b9d9a1d9ac9c4b8867f174046205915b9ebc67cfed31587d0';
+
+const getAllUsers = async (req: Request, res: Response) => {
+    try {
+        const users = await prisma.user.findMany({
+            select: {
+                email: true,
+                name: true,
+            }
+        });
+        res.status(200).json({
+            ok: true,
+            data: {
+                users
+            }
+        });
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}
+
+const register = async (req: Request, res: Response) => {
+    try {
+        const { name, email, password } = req.body;
+        bcrypt.hash(password, 10, async (err, hash) => {
+            const user = await prisma.user.create({
+                data: {
+                    email,
+                    name,
+                    alternalName: generateUserAlternalName(name),
+                    password: hash
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    alternalName:true,
+                    selectedCharacter:true,
+                    email: true,
+                }
+            })
+            const maxAge = 3 * 60 * 60;
+            const token = jwt.sign(
+                { id: user.id },
+                jwtSecret,
+                {
+                    // 3hrs in sec
+                    expiresIn: maxAge,
+                }
+            );
+            res.status(200).json({
+                ok: true,
+                data: {
+                    token,
+                    name: user.name,
+                    alternalName: user.alternalName,
+                    selectedCharacter:user.selectedCharacter,
+                    email: user.email,
+                }
+            });
+        });
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}
+
+const login = async (req: Request, res: Response) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({
+                message: "Email or Password not present",
+            })
+        }
+        const user = await prisma.user.findUnique({
+            where: {
+                email: email
+            }
+        })
+        if (!user) {
+            return res.status(400).json({
+                message: "User doesn't exist",
+            })
+        } else {
+            bcrypt.compare(password, user.password, (err, result) => {
+                if (result) {
+                    // 3hrs in sec
+                    const maxAge = 3 * 60 * 60;
+                    const token = jwt.sign(
+                        { id: user.id },
+                        jwtSecret,
+                        {
+                            expiresIn: maxAge,
+                        }
+                    );
+                    res.status(200).json({
+                        ok: true,
+                        data: {
+                            token,
+                            name: user.name,
+                            email: user.email,
+                            alternalName: user.alternalName,
+                            selectedCharacter:user.selectedCharacter,
+                        }
+                    });
+                } else {
+                    res.status(400).json({
+                        message: "User doesn't exist",
+                    })
+                }
+            })
+        }
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}
+
+const getUserData = async (req: Request, res: Response) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: res.locals.userId,
+            },
+            select: {
+                alternalName: true,
+                selectedCharacter:true,
+                email: true,
+                name: true,
+            }
+        });
+        res.status(200).json({
+            ok: true,
+            data: {
+                user
+            }
+        });
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}
+
+export default {
+    register,
+    login,
+    getAllUsers,
+    getUserData
+}
