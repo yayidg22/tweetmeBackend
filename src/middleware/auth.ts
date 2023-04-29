@@ -7,7 +7,7 @@ interface UserIDJwtPayload extends JwtPayload {
     id: number
 }
 
-export const auth = async (req: Request, res: Response, next: NextFunction) => {
+ const auth = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const token = req.header('Authorization')?.replace('bearer ', '');
         if (!token) {

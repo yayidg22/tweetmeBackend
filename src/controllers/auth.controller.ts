@@ -31,9 +31,10 @@ const register = async (req: Request, res: Response) => {
             const user = await prisma.user.create({
                 data: {
                     email,
+                    password: hash,
                     name,
                     alternalName: generateUserAlternalName(name),
-                    password: hash
+                    selectedCharacter:1
                 },
                 select: {
                     id: true,

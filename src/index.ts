@@ -1,11 +1,12 @@
 import express, { Request, Response } from 'express'
 import { PrismaClient } from '@prisma/client';
-import AuthRouter from '../src/routes/auth.route';
-import PostRouter from '../src/routes/post.route';
-
+import AuthRouter from './routes/auth.route';
+import PostRouter from './routes/post.route';
 import cors from 'cors';
+
 export const prisma = new PrismaClient();
 const app = express();
+const port = process.env.PORT || 3001;
 
 async function main() {
     app.use(express.json());
@@ -19,8 +20,8 @@ async function main() {
     app.all("*", (req: Request, res: Response) => {
         res.status(404).json({ error: `Route ${req.originalUrl} not found` });
     });
-    app.listen(3001, () => {
-        console.log(`Server is listening on port ${3001}`);
+    app.listen(port, () => {
+        console.log(`Server is listening on port ${port}`);
     });
 }
 
