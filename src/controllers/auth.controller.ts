@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import jwt from "jsonwebtoken";
 import { prisma } from "../index";
 import { generateUserAlternalName } from '../utilities/StringUtil';
+
 const jwtSecret = 'cf0d574bd8764c2b758d3b9d9a1d9ac9c4b8867f174046205915b9ebc67cfed31587d0';
 
 const getAllUsers = async (req: Request, res: Response) => {
@@ -144,9 +145,43 @@ const getUserData = async (req: Request, res: Response) => {
     }
 }
 
+const updateSelectedCharacter = async (req: Request, res: Response) => {
+    try {
+        const { selectedCharacter } = req.body;
+        const user = await prisma.user.update({
+            where:{
+                id:res.locals.userId,
+            },
+            data: {
+                selectedCharacter
+            },
+            select: {
+                id: true,
+                name: true,
+                alternalName:true,
+                selectedCharacter:true,
+                email: true,
+            }
+        })
+            res.status(200).json({
+                ok: true,
+                data: {
+                    name: user.name,
+                    alternalName: user.alternalName,
+                    selectedCharacter:user.selectedCharacter,
+                    email: user.email,
+                }
+            });
+
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}
+
 export default {
     register,
     login,
     getAllUsers,
-    getUserData
+    getUserData,
+    updateSelectedCharacter
 }
