@@ -3,7 +3,7 @@ See it live [tweetme-yayidg22.vercel.app](https://tweetme-yayidg22.vercel.app/)
 
 ## What is this?
 
-the backend of [TweetMe](https://tweetme-yayidg22.vercel.app/)
+the backend of [TweetMe](https://github.com/yayidg22/tweetme)
 
 ## Libraries on tweetme :
 
