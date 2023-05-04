@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
-const SECRET_KEY = "cf0d574bd8764c2b758d3b9d9a1d9ac9c4b8867f174046205915b9ebc67cfed31587d0";
+const SECRET_KEY = process.env.SECRET_KEY as string;
 
 interface UserIDJwtPayload extends JwtPayload {
     id: number

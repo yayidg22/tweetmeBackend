@@ -44,7 +44,6 @@ const getPostByUser = async (req: Request, res: Response) => {
                 }
             },
         });
-        console.log(posts);
         res.status(200).json({
             ok: true,
             data: {

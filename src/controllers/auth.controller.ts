@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import { prisma } from "../index";
 import { generateUserAlternalName } from '../utilities/StringUtil';
 
-const jwtSecret = 'cf0d574bd8764c2b758d3b9d9a1d9ac9c4b8867f174046205915b9ebc67cfed31587d0';
+const jwtSecret = process.env.SECRET_KEY as string;
 
 const getAllUsers = async (req: Request, res: Response) => {
     try {
@@ -48,7 +48,7 @@ const register = async (req: Request, res: Response) => {
             const maxAge = 3 * 60 * 60;
             const token = jwt.sign(
                 { id: user.id },
-                jwtSecret,
+                jwtSecret ,
                 {
                     // 3hrs in sec
                     expiresIn: maxAge,
